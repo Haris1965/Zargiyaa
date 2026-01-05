@@ -1,17 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
-    const petals = document.querySelectorAll('.petal');
-    const rose = document.querySelector('.rose');
-    const colorButtons = document.querySelectorAll('.color-btn');
-    const bloomBtn = document.getElementById('bloom-btn');
-    const resetBtn = document.getElementById('reset-btn');
-    const loveBtn = document.getElementById('love-btn');
-    const sparkles = document.querySelectorAll('.sparkle');
-    const distanceKm = document.getElementById('distance-km');
-    const lovePercent = document.getElementById('love-percent');
-    const profileImage = document.getElementById('profile-image');
-    const profileContainer = document.querySelector('.profile-container');
-    // Get DOM elements
+    // Get DOM elements - REMOVE DUPLICATES
     const petals = document.querySelectorAll('.petal');
     const rose = document.querySelector('.rose');
     const colorButtons = document.querySelectorAll('.color-btn');
@@ -34,6 +22,194 @@ document.addEventListener('DOMContentLoaded', function() {
     const volumeSlider = document.getElementById('volume-slider');
     const volumePercent = document.getElementById('volume-percent');
     // ==========================================
+
+    // ===== MUSIC PLAYER FUNCTIONS =====
+    
+    // Music player initialization
+    function initializeMusicPlayer() {
+        // Set initial volume
+        backgroundMusic.volume = 0.5;
+        volumeSlider.value = 0.5;
+        volumePercent.textContent = '50%';
+        
+        // Auto-play music when page loads (with user interaction fallback)
+        setTimeout(() => {
+            backgroundMusic.play().then(() => {
+                showMusicNotification('Music started automatically! 🎵');
+                createMusicNotes();
+            }).catch(error => {
+                // If auto-play fails, wait for user interaction
+                console.log('Auto-play prevented, waiting for user interaction...');
+                document.addEventListener('click', function autoPlayOnClick() {
+                    backgroundMusic.play().then(() => {
+                        showMusicNotification('Music started! 🎵');
+                        createMusicNotes();
+                    });
+                    document.removeEventListener('click', autoPlayOnClick);
+                });
+            });
+        }, 1000); // Wait 1 second before auto-play
+        
+        // Play button
+        playBtn.addEventListener('click', function() {
+            backgroundMusic.play();
+            createMusicNotes();
+            showMusicNotification('Music playing... 💕');
+            
+            // Button feedback
+            this.style.background = 'linear-gradient(45deg, #10b981, #34d399)';
+            setTimeout(() => {
+                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
+            }, 300);
+        });
+        
+        // Pause button
+        pauseBtn.addEventListener('click', function() {
+            backgroundMusic.pause();
+            showMusicNotification('Music paused');
+            
+            // Button feedback
+            this.style.background = 'linear-gradient(45deg, #f59e0b, #fbbf24)';
+            setTimeout(() => {
+                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
+            }, 300);
+        });
+        
+        // Volume up
+        volumeUp.addEventListener('click', function() {
+            if (backgroundMusic.volume < 1) {
+                backgroundMusic.volume = Math.min(1, backgroundMusic.volume + 0.1);
+                volumeSlider.value = backgroundMusic.volume;
+                updateVolumeDisplay();
+            }
+            
+            // Button feedback
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        // Volume down
+        volumeDown.addEventListener('click', function() {
+            if (backgroundMusic.volume > 0) {
+                backgroundMusic.volume = Math.max(0, backgroundMusic.volume - 0.1);
+                volumeSlider.value = backgroundMusic.volume;
+                updateVolumeDisplay();
+            }
+            
+            // Button feedback
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        // Mute button
+        muteBtn.addEventListener('click', function() {
+            backgroundMusic.muted = !backgroundMusic.muted;
+            if (backgroundMusic.muted) {
+                this.innerHTML = '<i class="fas fa-volume-off"></i>';
+                showMusicNotification('Music muted');
+            } else {
+                this.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                showMusicNotification('Music unmuted');
+            }
+            
+            // Button feedback
+            this.style.background = backgroundMusic.muted ? 
+                'linear-gradient(45deg, #6b7280, #9ca3af)' : 
+                'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
+        });
+        
+        // Volume slider
+        volumeSlider.addEventListener('input', function() {
+            backgroundMusic.volume = this.value;
+            updateVolumeDisplay();
+        });
+        
+        // Show music notes when playing
+        backgroundMusic.addEventListener('play', function() {
+            // Start creating music notes periodically
+            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
+            window.musicNoteInterval = setInterval(createMusicNotes, 2000);
+        });
+        
+        backgroundMusic.addEventListener('pause', function() {
+            // Stop creating music notes
+            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
+        });
+    }
+
+    // Update volume display
+    function updateVolumeDisplay() {
+        const percent = Math.round(backgroundMusic.volume * 100);
+        volumePercent.textContent = percent + '%';
+        
+        // Change color based on volume
+        if (percent === 0) {
+            volumePercent.style.color = '#ef4444';
+        } else if (percent < 50) {
+            volumePercent.style.color = '#f59e0b';
+        } else {
+            volumePercent.style.color = '#10b981';
+        }
+    }
+
+    // Create floating music notes
+    function createMusicNotes() {
+        if (backgroundMusic.paused) return;
+        
+        const notes = ['♪', '♫', '♬', '🎵', '🎶', '🎼'];
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                const note = document.createElement('div');
+                note.className = 'music-note';
+                note.textContent = notes[Math.floor(Math.random() * notes.length)];
+                note.style.left = Math.random() * 100 + 'vw';
+                note.style.top = '100vh';
+                note.style.color = ['#ff6b8b', '#a5b4fc', '#34d399', '#fbbf24'][Math.floor(Math.random() * 4)];
+                note.style.fontSize = Math.random() * 20 + 20 + 'px';
+                
+                document.body.appendChild(note);
+                
+                setTimeout(() => {
+                    note.remove();
+                }, 2000);
+            }, i * 200);
+        }
+    }
+
+    // Show music notification
+    function showMusicNotification(message) {
+        let notification = document.querySelector('.music-notification');
+        
+        if (!notification) {
+            notification = document.createElement('div');
+            notification.className = 'music-notification';
+            document.body.appendChild(notification);
+        }
+        
+        notification.innerHTML = `<i class="fas fa-music"></i> ${message}`;
+        notification.style.display = 'flex';
+        
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+
+    // Add music notification to DOM
+    if (!document.querySelector('.music-notification')) {
+        const notification = document.createElement('div');
+        notification.className = 'music-notification';
+        document.body.appendChild(notification);
+    }
+    // ===== END MUSIC PLAYER FUNCTIONS =====
+
+    // Initialize music player - ADD THIS LINE
+    initializeMusicPlayer();
+
     // Bloom animation
     function bloomRose() {
         // Reset first
@@ -297,190 +473,6 @@ document.addEventListener('DOMContentLoaded', function() {
             (B < 255 ? B < 1 ? 0 : B : 255)
         ).toString(16).slice(1);
     }
-
-    // ===== MUSIC PLAYER FUNCTIONS =====
-    
-    // Music player initialization
-    function initializeMusicPlayer() {
-        // Set initial volume
-        backgroundMusic.volume = 0.5;
-        volumeSlider.value = 0.5;
-        volumePercent.textContent = '50%';
-        
-        // Auto-play music when page loads (with user interaction fallback)
-        setTimeout(() => {
-            backgroundMusic.play().then(() => {
-                showMusicNotification('Music started automatically! 🎵');
-                createMusicNotes();
-            }).catch(error => {
-                // If auto-play fails, wait for user interaction
-                console.log('Auto-play prevented, waiting for user interaction...');
-                document.addEventListener('click', function autoPlayOnClick() {
-                    backgroundMusic.play().then(() => {
-                        showMusicNotification('Music started! 🎵');
-                        createMusicNotes();
-                    });
-                    document.removeEventListener('click', autoPlayOnClick);
-                });
-            });
-        }, 1000); // Wait 1 second before auto-play
-        
-        // Play button
-        playBtn.addEventListener('click', function() {
-            backgroundMusic.play();
-            createMusicNotes();
-            showMusicNotification('Music playing... 💕');
-            
-            // Button feedback
-            this.style.background = 'linear-gradient(45deg, #10b981, #34d399)';
-            setTimeout(() => {
-                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-            }, 300);
-        });
-        
-        // Pause button
-        pauseBtn.addEventListener('click', function() {
-            backgroundMusic.pause();
-            showMusicNotification('Music paused');
-            
-            // Button feedback
-            this.style.background = 'linear-gradient(45deg, #f59e0b, #fbbf24)';
-            setTimeout(() => {
-                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-            }, 300);
-        });
-        
-        // Volume up
-        volumeUp.addEventListener('click', function() {
-            if (backgroundMusic.volume < 1) {
-                backgroundMusic.volume = Math.min(1, backgroundMusic.volume + 0.1);
-                volumeSlider.value = backgroundMusic.volume;
-                updateVolumeDisplay();
-            }
-            
-            // Button feedback
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 200);
-        });
-        
-        // Volume down
-        volumeDown.addEventListener('click', function() {
-            if (backgroundMusic.volume > 0) {
-                backgroundMusic.volume = Math.max(0, backgroundMusic.volume - 0.1);
-                volumeSlider.value = backgroundMusic.volume;
-                updateVolumeDisplay();
-            }
-            
-            // Button feedback
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 200);
-        });
-        
-        // Mute button
-        muteBtn.addEventListener('click', function() {
-            backgroundMusic.muted = !backgroundMusic.muted;
-            if (backgroundMusic.muted) {
-                this.innerHTML = '<i class="fas fa-volume-off"></i>';
-                showMusicNotification('Music muted');
-            } else {
-                this.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                showMusicNotification('Music unmuted');
-            }
-            
-            // Button feedback
-            this.style.background = backgroundMusic.muted ? 
-                'linear-gradient(45deg, #6b7280, #9ca3af)' : 
-                'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-        });
-        
-        // Volume slider
-        volumeSlider.addEventListener('input', function() {
-            backgroundMusic.volume = this.value;
-            updateVolumeDisplay();
-        });
-        
-        // Show music notes when playing
-        backgroundMusic.addEventListener('play', function() {
-            // Start creating music notes periodically
-            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
-            window.musicNoteInterval = setInterval(createMusicNotes, 2000);
-        });
-        
-        backgroundMusic.addEventListener('pause', function() {
-            // Stop creating music notes
-            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
-        });
-    }
-
-    // Update volume display
-    function updateVolumeDisplay() {
-        const percent = Math.round(backgroundMusic.volume * 100);
-        volumePercent.textContent = percent + '%';
-        
-        // Change color based on volume
-        if (percent === 0) {
-            volumePercent.style.color = '#ef4444';
-        } else if (percent < 50) {
-            volumePercent.style.color = '#f59e0b';
-        } else {
-            volumePercent.style.color = '#10b981';
-        }
-    }
-
-    // Create floating music notes
-    function createMusicNotes() {
-        if (backgroundMusic.paused) return;
-        
-        const notes = ['♪', '♫', '♬', '🎵', '🎶', '🎼'];
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                const note = document.createElement('div');
-                note.className = 'music-note';
-                note.textContent = notes[Math.floor(Math.random() * notes.length)];
-                note.style.left = Math.random() * 100 + 'vw';
-                note.style.top = '100vh';
-                note.style.color = ['#ff6b8b', '#a5b4fc', '#34d399', '#fbbf24'][Math.floor(Math.random() * 4)];
-                note.style.fontSize = Math.random() * 20 + 20 + 'px';
-                
-                document.body.appendChild(note);
-                
-                setTimeout(() => {
-                    note.remove();
-                }, 2000);
-            }, i * 200);
-        }
-    }
-
-    // Show music notification
-    function showMusicNotification(message) {
-        let notification = document.querySelector('.music-notification');
-        
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.className = 'music-notification';
-            document.body.appendChild(notification);
-        }
-        
-        notification.innerHTML = `<i class="fas fa-music"></i> ${message}`;
-        notification.style.display = 'flex';
-        
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    }
-
-    // Add music notification to DOM
-    if (!document.querySelector('.music-notification')) {
-        const notification = document.createElement('div');
-        notification.className = 'music-notification';
-        document.body.appendChild(notification);
-    }
-    // ===== END MUSIC PLAYER FUNCTIONS =====
 
     // Reset rose to initial state
     function resetRose() {
