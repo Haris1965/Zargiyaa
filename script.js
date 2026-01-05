@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements - REMOVE DUPLICATES
+    // Get DOM elements
     const petals = document.querySelectorAll('.petal');
     const rose = document.querySelector('.rose');
     const colorButtons = document.querySelectorAll('.color-btn');
@@ -12,221 +12,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const profileImage = document.getElementById('profile-image');
     const profileContainer = document.querySelector('.profile-container');
     
-    // ===== ADD MUSIC PLAYER ELEMENTS HERE =====
-    const backgroundMusic = document.getElementById('background-music');
-    const playBtn = document.getElementById('play-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-    const volumeUp = document.getElementById('volume-up');
-    const volumeDown = document.getElementById('volume-down');
-    const muteBtn = document.getElementById('mute-btn');
-    const volumeSlider = document.getElementById('volume-slider');
-    const volumePercent = document.getElementById('volume-percent');
-    // ==========================================
+    // Audio elements
+    const soundHint = document.getElementById('soundHint');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    let audioEnabled = false;
 
-    // ===== MUSIC PLAYER FUNCTIONS =====
-    
-    // Music player initialization
-    function initializeMusicPlayer() {
-        // Set initial volume
-        backgroundMusic.volume = 0.5;
-        volumeSlider.value = 0.5;
-        volumePercent.textContent = '50%';
+    // Initialize audio interaction
+    function initAudioInteraction() {
+        if (!backgroundMusic) return;
         
-        // Auto-play music when page loads (with user interaction fallback)
-        setTimeout(() => {
-            backgroundMusic.play().then(() => {
-                showMusicNotification('Music started automatically! 🎵');
-                createMusicNotes();
-            }).catch(error => {
-               // Wait for DOM to load
-document.addEventListener('DOMContentLoaded', function() {
-  const audio = document.getElementById('backgroundMusic'); // Make sure your audio has this ID
-  const soundHint = document.getElementById('soundHint');
-
-  // Function to play audio
-  function playAudio() {
-    if (audio) {
-      audio.play().then(() => {
-        console.log("Audio started successfully");
-      }).catch(e => {
-        console.log("Audio play failed:", e);
-      });
-    }
-  }
-
-  // Remove hint and play audio on first click
-  document.addEventListener('click', function initAudio() {
-    if (soundHint) soundHint.style.display = 'none';
-    playAudio();
-    // Remove this listener after first click
-    document.removeEventListener('click', initAudio);
-  });
-
-  // Also allow play via your custom buttons (like "Bloom Again" or "Send Love")
-  document.querySelectorAll('.interactive-btn').forEach(btn => {
-    btn.addEventListener('click', playAudio);
-  });
-});
-        
-        // Play button
-        playBtn.addEventListener('click', function() {
-            backgroundMusic.play();
-            createMusicNotes();
-            showMusicNotification('Music playing... 💕');
-            
-            // Button feedback
-            this.style.background = 'linear-gradient(45deg, #10b981, #34d399)';
-            setTimeout(() => {
-                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-            }, 300);
-        });
-        
-        // Pause button
-        pauseBtn.addEventListener('click', function() {
-            backgroundMusic.pause();
-            showMusicNotification('Music paused');
-            
-            // Button feedback
-            this.style.background = 'linear-gradient(45deg, #f59e0b, #fbbf24)';
-            setTimeout(() => {
-                this.style.background = 'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-            }, 300);
-        });
-        
-        // Volume up
-        volumeUp.addEventListener('click', function() {
-            if (backgroundMusic.volume < 1) {
-                backgroundMusic.volume = Math.min(1, backgroundMusic.volume + 0.1);
-                volumeSlider.value = backgroundMusic.volume;
-                updateVolumeDisplay();
-            }
-            
-            // Button feedback
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 200);
-        });
-        
-        // Volume down
-        volumeDown.addEventListener('click', function() {
-            if (backgroundMusic.volume > 0) {
-                backgroundMusic.volume = Math.max(0, backgroundMusic.volume - 0.1);
-                volumeSlider.value = backgroundMusic.volume;
-                updateVolumeDisplay();
-            }
-            
-            // Button feedback
-            this.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                this.style.transform = 'scale(1)';
-            }, 200);
-        });
-        
-        // Mute button
-        muteBtn.addEventListener('click', function() {
-            backgroundMusic.muted = !backgroundMusic.muted;
-            if (backgroundMusic.muted) {
-                this.innerHTML = '<i class="fas fa-volume-off"></i>';
-                showMusicNotification('Music muted');
-            } else {
-                this.innerHTML = '<i class="fas fa-volume-mute"></i>';
-                showMusicNotification('Music unmuted');
-            }
-            
-            // Button feedback
-            this.style.background = backgroundMusic.muted ? 
-                'linear-gradient(45deg, #6b7280, #9ca3af)' : 
-                'linear-gradient(45deg, #ff6b8b, #ff4d8d)';
-        });
-        
-        // Volume slider
-        volumeSlider.addEventListener('input', function() {
-            backgroundMusic.volume = this.value;
-            updateVolumeDisplay();
-        });
-        
-        // Show music notes when playing
-        backgroundMusic.addEventListener('play', function() {
-            // Start creating music notes periodically
-            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
-            window.musicNoteInterval = setInterval(createMusicNotes, 2000);
-        });
-        
-        backgroundMusic.addEventListener('pause', function() {
-            // Stop creating music notes
-            if (window.musicNoteInterval) clearInterval(window.musicNoteInterval);
-        });
-    }
-
-    // Update volume display
-    function updateVolumeDisplay() {
-        const percent = Math.round(backgroundMusic.volume * 100);
-        volumePercent.textContent = percent + '%';
-        
-        // Change color based on volume
-        if (percent === 0) {
-            volumePercent.style.color = '#ef4444';
-        } else if (percent < 50) {
-            volumePercent.style.color = '#f59e0b';
-        } else {
-            volumePercent.style.color = '#10b981';
-        }
-    }
-
-    // Create floating music notes
-    function createMusicNotes() {
-        if (backgroundMusic.paused) return;
-        
-        const notes = ['♪', '♫', '♬', '🎵', '🎶', '🎼'];
-        for (let i = 0; i < 3; i++) {
-            setTimeout(() => {
-                const note = document.createElement('div');
-                note.className = 'music-note';
-                note.textContent = notes[Math.floor(Math.random() * notes.length)];
-                note.style.left = Math.random() * 100 + 'vw';
-                note.style.top = '100vh';
-                note.style.color = ['#ff6b8b', '#a5b4fc', '#34d399', '#fbbf24'][Math.floor(Math.random() * 4)];
-                note.style.fontSize = Math.random() * 20 + 20 + 'px';
+        // Remove hint and enable audio on first click anywhere
+        document.addEventListener('click', function enableAudio() {
+            if (!audioEnabled) {
+                soundHint.style.display = 'none';
                 
-                document.body.appendChild(note);
+                // Try to play audio
+                backgroundMusic.play().then(() => {
+                    console.log("Background music started");
+                    audioEnabled = true;
+                }).catch(error => {
+                    console.log("Audio play failed:", error);
+                    // Still mark as enabled to avoid repeated attempts
+                    audioEnabled = true;
+                });
                 
-                setTimeout(() => {
-                    note.remove();
-                }, 2000);
-            }, i * 200);
-        }
+                // Remove this listener after first click
+                document.removeEventListener('click', enableAudio);
+            }
+        }, { once: true });
+        
+        // Also enable audio via interactive buttons
+        [bloomBtn, resetBtn, loveBtn, ...colorButtons].forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', function() {
+                    if (!audioEnabled && backgroundMusic) {
+                        backgroundMusic.play().then(() => {
+                            audioEnabled = true;
+                            if (soundHint) soundHint.style.display = 'none';
+                        });
+                    }
+                });
+            }
+        });
     }
 
-    // Show music notification
-    function showMusicNotification(message) {
-        let notification = document.querySelector('.music-notification');
-        
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.className = 'music-notification';
-            document.body.appendChild(notification);
-        }
-        
-        notification.innerHTML = `<i class="fas fa-music"></i> ${message}`;
-        notification.style.display = 'flex';
-        
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    }
-
-    // Add music notification to DOM
-    if (!document.querySelector('.music-notification')) {
-        const notification = document.createElement('div');
-        notification.className = 'music-notification';
-        document.body.appendChild(notification);
-    }
-    // ===== END MUSIC PLAYER FUNCTIONS =====
-
-    // Initialize music player - ADD THIS LINE
-    initializeMusicPlayer();
+    // Call audio initialization
+    initAudioInteraction();
 
     // Bloom animation
     function bloomRose() {
@@ -274,6 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
         animateCounter(distanceKm, 0, 3841, 2000);
         createHeartRain();
         
+        // Play gentle sound if audio is enabled
+        if (audioEnabled) {
+            playSoundEffect('bloom');
+        }
+        
         // Button feedback
         bloomBtn.innerHTML = '<i class="fas fa-check"></i> Blooming!';
         bloomBtn.style.background = 'linear-gradient(45deg, #10b981, #34d399)';
@@ -302,6 +138,11 @@ document.addEventListener('DOMContentLoaded', function() {
             lovePercent.style.transform = 'scale(1)';
         }, 300);
         
+        // Play love sound if audio is enabled
+        if (audioEnabled) {
+            playSoundEffect('love');
+        }
+        
         // Button feedback
         loveBtn.innerHTML = '<i class="fas fa-heart"></i> Love Sent!';
         loveBtn.style.background = 'linear-gradient(45deg, #ff4d8d, #ff6b8b)';
@@ -311,8 +152,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1500);
     }
 
+    // Play sound effects
+    function playSoundEffect(type) {
+        // This is a placeholder - you can add actual sound files
+        try {
+            if (type === 'bloom') {
+                // Optional: play a gentle bloom sound
+                console.log("Bloom sound effect would play");
+            } else if (type === 'love') {
+                // Optional: play a heart sound
+                console.log("Love sound effect would play");
+            }
+        } catch (error) {
+            console.log("Sound effect error:", error);
+        }
+    }
+
     // Profile picture heart effect
     function createPhotoHeartEffect() {
+        // Play a sound if audio is enabled
+        if (audioEnabled) {
+            try {
+                // Optional: play a click sound
+                console.log("Photo click sound would play");
+            } catch (error) {
+                console.log("Sound error:", error);
+            }
+        }
+        
         // Create multiple hearts
         for (let i = 0; i < 8; i++) {
             setTimeout(() => {
@@ -470,6 +337,11 @@ document.addEventListener('DOMContentLoaded', function() {
             rose.style.filter = 'brightness(1)';
         }, 300);
         
+        // Play sound if audio is enabled
+        if (audioEnabled) {
+            console.log("Color change sound would play");
+        }
+        
         // Button feedback
         button.style.transform = 'scale(0.95)';
         setTimeout(() => {
@@ -513,6 +385,11 @@ document.addEventListener('DOMContentLoaded', function() {
         distanceKm.textContent = '3,841';
         lovePercent.textContent = '24/7';
         lovePercent.style.color = '';
+        
+        // Play reset sound if audio is enabled
+        if (audioEnabled) {
+            console.log("Reset sound would play");
+        }
         
         // Button feedback
         resetBtn.innerHTML = '<i class="fas fa-check"></i> Reset!';
@@ -590,8 +467,13 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'scale(1)';
         }, 200);
         createHeartExplosion();
+        
+        // Enable audio on message click too
+        if (!audioEnabled && backgroundMusic) {
+            backgroundMusic.play().then(() => {
+                audioEnabled = true;
+                if (soundHint) soundHint.style.display = 'none';
+            });
+        }
     });
-
-    // Initialize with a bloomed rose
-    bloomRose();
 });
