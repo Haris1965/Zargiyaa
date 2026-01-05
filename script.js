@@ -38,17 +38,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 showMusicNotification('Music started automatically! 🎵');
                 createMusicNotes();
             }).catch(error => {
-                // If auto-play fails, wait for user interaction
-                console.log('Auto-play prevented, waiting for user interaction...');
-                document.addEventListener('click', function autoPlayOnClick() {
-                    backgroundMusic.play().then(() => {
-                        showMusicNotification('Music started! 🎵');
-                        createMusicNotes();
-                    });
-                    document.removeEventListener('click', autoPlayOnClick);
-                });
-            });
-        }, 1000); // Wait 1 second before auto-play
+               // Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+  const audio = document.getElementById('backgroundMusic'); // Make sure your audio has this ID
+  const soundHint = document.getElementById('soundHint');
+
+  // Function to play audio
+  function playAudio() {
+    if (audio) {
+      audio.play().then(() => {
+        console.log("Audio started successfully");
+      }).catch(e => {
+        console.log("Audio play failed:", e);
+      });
+    }
+  }
+
+  // Remove hint and play audio on first click
+  document.addEventListener('click', function initAudio() {
+    if (soundHint) soundHint.style.display = 'none';
+    playAudio();
+    // Remove this listener after first click
+    document.removeEventListener('click', initAudio);
+  });
+
+  // Also allow play via your custom buttons (like "Bloom Again" or "Send Love")
+  document.querySelectorAll('.interactive-btn').forEach(btn => {
+    btn.addEventListener('click', playAudio);
+  });
+});
         
         // Play button
         playBtn.addEventListener('click', function() {
